@@ -4,10 +4,13 @@ from pathlib import Path
 from typing import Any
 import sys
 from overrides import overrides
-from events import Events
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QTableView
-from PySide6.QtCore import QFile, QAbstractTableModel, Qt, QCoreApplication, QModelIndex, QPersistentModelIndex, SIGNAL
+from PySide6.QtWidgets import QApplication, QMainWindow, QTableView, QLineEdit
+from PySide6.QtCore import (
+    QObject, QFile, QAbstractTableModel,
+    Qt, QCoreApplication, Signal,
+    QModelIndex, QPersistentModelIndex, SIGNAL
+)
 from PySide6.QtUiTools import QUiLoader
 
 from pandas import DataFrame
@@ -16,20 +19,17 @@ from casacore.tables import table as Table
 from casacore_table_model import CasacoreTableModel
 from pandas_table_model import PandasTableModel
 
-
-class ViewModelEvents(Events):
-    """doc"""
-    __events__ = ('on_model_set')
+from casacore.tables import taql
 
 class MainWindowModel:
     """doc"""
     _table: Table | None
 
 
-class MainWindowViewModel:
+class MainWindowViewModel(QObject):
     """doc"""
     _tablemodel: QAbstractTableModel | None
-    events = ViewModelEvents()
+    on_model_set = Signal()
 
     @property
     def tablemodel(self):
@@ -38,10 +38,14 @@ class MainWindowViewModel:
     @tablemodel.setter
     def tablemodel(self, value):
         self._tablemodel = value
-        self.events.on_model_set()
+        self.on_model_set.emit()
 
-    def __init__(self):
-        pass
+    def execute_query(self, query: str):
+        """doc"""
+        if isinstance(self.tablemodel, CasacoreTableModel):
+            t = self.tablemodel.table
+            # NOTE: query resolves interpreter variables with $, e.g. $t
+            self.tablemodel.querytable = taql(query, tables=[t])
 
     def open_table(self):
         pass
@@ -82,13 +86,17 @@ class MainWindow(QMainWindow):
         loader.load(ui_file, self)
         ui_file.close()
 
-        self.tableview = self.findChild(QTableView)
-        self.tableview.setSortingEnabled(True)
-
         # bindings
         # Since Qt XML has binding not have binding syntax, if the model gets reassigned
         # then child view components should fetch the model.
-        self.viewmodel.events.on_model_set += lambda: self.tableview.setModel(self.viewmodel.tablemodel)
+        self.tableview = self.findChild(QTableView)
+        self.queryedit = self.findChild(QLineEdit)
+
+        # handlers
+        self.viewmodel.on_model_set.connect(lambda: self.tableview.setModel(self.viewmodel.tablemodel))
+        
+        # commands
+        self.queryedit.editingFinished.connect(lambda: self.viewmodel.execute_query(self.queryedit.text()))
 
 
 if __name__ == "__main__":
@@ -97,19 +105,19 @@ if __name__ == "__main__":
     widget = MainWindow()
 
     # load models via code
-    tabledataframe =  DataFrame({
-        'id': [3,2,1],
-        'name': ['a', 'b', 'c'],
-        'age': [23,65,42]
-    })
-    widget.viewmodel.tablemodel = PandasTableModel(
-        widget,
-        tabledataframe
-    )
-    # widget.viewmodel.tablemodel = CasacoreTableModel(
+    # tabledataframe =  DataFrame({
+    #     'id': [3,2,1],
+    #     'name': ['a', 'b', 'c'],
+    #     'age': [23,65,42]
+    # })
+    # widget.viewmodel.tablemodel = PandasTableModel(
     #     widget,
-    #     Table("/home/callan/Code/icrar/msdata/ska/AA05LOW.ms/")
+    #     tabledataframe
     # )
+    widget.viewmodel.tablemodel = CasacoreTableModel(
+        widget,
+        Table("/home/callan/Code/icrar/msdata/ska/AA05LOW.ms/")
+    )
 
     widget.centralWidget().show()
     sys.exit(app.exec())

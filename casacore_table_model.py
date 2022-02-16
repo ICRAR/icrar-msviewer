@@ -11,19 +11,34 @@ class CasacoreTableModel(QAbstractTableModel):
     def __init__(self, parent, table: Table, *args):
         """doc"""
         super().__init__(parent)
-        self.table = table # Table& const table; pointer is not allowed to be reassigned
+        self._table = table # Table& const table; pointer is not allowed to be reassigned
+        self._querytable = self._table
         # Experimental
         self._showindex = True
+
+    @property
+    def table(self):
+        return self._table
+
+    @property
+    def querytable(self):
+        return self._querytable
+    
+    @querytable.setter
+    def querytable(self, value):
+        self.emit(SIGNAL("layoutAboutToBeChanged()"))
+        self._querytable = value
+        self.emit(SIGNAL("layoutChanged()"))
 
     # @overrides
     def rowCount(self, parent) -> int:
         """doc"""
-        return self.table.nrows()
+        return self._querytable.nrows()
 
     # @overrides
     def columnCount(self, parent) -> int:
         """doc"""
-        return self.table.ncols() + 1 if self._showindex else 0
+        return self._querytable.ncols() + 1 if self._showindex else 0
 
     # @overrides
     def data(self, index: QModelIndex, role: Qt.ItemDataRole) -> str | None:
@@ -33,18 +48,18 @@ class CasacoreTableModel(QAbstractTableModel):
         elif role != Qt.DisplayRole:
             return None
         if not self._showindex:
-            return str(self.table[index.row()][self.table.colnames()[index.column()]])
+            return str(self._querytable[index.row()][self._querytable.colnames()[index.column()]])
         else:
-            return index.row() if index.column() == 0 else str(self.table[index.row()][self.table.colnames()[index.column()-1]])
+            return self._querytable.rownumbers()[index.row()] if index.column() == 0 else str(self._querytable[index.row()][self._querytable.colnames()[index.column()-1]])
 
     # @overrides
     def headerData(self, col, orientation: Qt.Orientation, role: Qt.ItemDataRole):
         """doc"""
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             if not self._showindex:
-                return self.table.colnames()[col]
+                return self._querytable.colnames()[col]
             else:
-                return 'index' if col == 0 else self.table.colnames()[col-1]
+                return 'index' if col == 0 else self._querytable.colnames()[col-1]
         return None
 
     # @overrides
