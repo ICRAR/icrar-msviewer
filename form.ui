@@ -28,24 +28,8 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QCommandLinkButton" name="commandLinkButton">
-      <property name="text">
-       <string>CommandLinkButton</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QCommandLinkButton" name="commandLinkButton_2">
-      <property name="text">
-       <string>CommandLinkButton</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QCommandLinkButton" name="commandLinkButton_3">
-      <property name="text">
-       <string>CommandLinkButton</string>
-      </property>
+     <widget class="QTableView" name="tableView">
+
      </widget>
     </item>
    </layout>
