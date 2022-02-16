@@ -46,7 +46,7 @@ class PandasTableModel(QAbstractTableModel):
             if not self._showindex:
                 return self.header[col]
             else:
-                return 'index' if col == 0 else self.header[col]
+                return 'index' if col == 0 else self.header[col-1]
         return None
 
     # @overrides

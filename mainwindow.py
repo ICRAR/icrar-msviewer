@@ -1,8 +1,10 @@
 # This Python file uses the following encoding: utf-8
 import os
 from pathlib import Path
+from typing import Any
 import sys
 from overrides import overrides
+from events import Events
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableView
 from PySide6.QtCore import QFile, QAbstractTableModel, Qt, QCoreApplication, QModelIndex, QPersistentModelIndex, SIGNAL
@@ -14,6 +16,43 @@ from casacore.tables import table as Table
 from casacore_table_model import CasacoreTableModel
 from pandas_table_model import PandasTableModel
 
+
+class ViewModelEvents(Events):
+    """doc"""
+    __events__ = ('on_model_set')
+
+class MainWindowModel:
+    """doc"""
+    _table: Table | None
+
+
+class MainWindowViewModel:
+    """doc"""
+    _tablemodel: QAbstractTableModel | None
+    events = ViewModelEvents()
+
+    @property
+    def tablemodel(self):
+        return self._tablemodel
+
+    @tablemodel.setter
+    def tablemodel(self, value):
+        self._tablemodel = value
+        self.events.on_model_set()
+
+    def __init__(self):
+        pass
+
+    def open_table(self):
+        pass
+
+    def save_table(self):
+        pass
+
+    def toggle_show_index(self):
+        pass
+
+
 class MainWindow(QMainWindow):
     """
     Main window component of icrar casacore explorer.
@@ -22,25 +61,20 @@ class MainWindow(QMainWindow):
     Views contain the app heirarchy/backbone.
     Views always own a single viewmodel context.
     """
-    _tableviewmodel = None
+    _viewmodel = MainWindowViewModel()
 
     def __init__(self):
         super().__init__()
         self.load_ui()
 
-    # TODO: move to viewmodel
     @property
-    def tableviewmodel(self):
-        """Returns the table model"""
-        return self._tableviewmodel
-
-    @tableviewmodel.setter
-    def tableviewmodel(self, value):
-        self._tableviewmodel = value
-        self.tableview.setModel(self.tableviewmodel)
+    def viewmodel(self):
+        """Returns the viewmodel"""
+        return self._viewmodel
 
     def load_ui(self):
-        """doc"""
+        """_summary_
+        """
         loader = QUiLoader()
         path = os.fspath(Path(__file__).resolve().parent / "form.ui")
         ui_file = QFile(path)
@@ -48,10 +82,13 @@ class MainWindow(QMainWindow):
         loader.load(ui_file, self)
         ui_file.close()
 
-        # bindings
         self.tableview = self.findChild(QTableView)
-        self.tableview.setModel(self.tableviewmodel)
         self.tableview.setSortingEnabled(True)
+
+        # bindings
+        # Since Qt XML has binding not have binding syntax, if the model gets reassigned
+        # then child view components should fetch the model.
+        self.viewmodel.events.on_model_set += lambda: self.tableview.setModel(self.viewmodel.tablemodel)
 
 
 if __name__ == "__main__":
@@ -59,19 +96,20 @@ if __name__ == "__main__":
     app = QApplication([])
     widget = MainWindow()
 
-    # model
-    # tabledataframe =  DataFrame({
-    #     'id': [3,2,1],
-    #     'name': ['a', 'b', 'c'],
-    #     'age': [23,65,42]
-    # })
-    # self.tablemodel = PandasTableModel(
-    #     self,
-    #     self.tabledataframe)
-    widget.tableviewmodel = CasacoreTableModel(
+    # load models via code
+    tabledataframe =  DataFrame({
+        'id': [3,2,1],
+        'name': ['a', 'b', 'c'],
+        'age': [23,65,42]
+    })
+    widget.viewmodel.tablemodel = PandasTableModel(
         widget,
-        Table("/home/callan/Code/icrar/msdata/ska/AA05LOW.ms/")
+        tabledataframe
     )
+    # widget.viewmodel.tablemodel = CasacoreTableModel(
+    #     widget,
+    #     Table("/home/callan/Code/icrar/msdata/ska/AA05LOW.ms/")
+    # )
 
     widget.centralWidget().show()
     sys.exit(app.exec())
