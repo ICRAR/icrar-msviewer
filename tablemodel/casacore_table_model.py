@@ -8,24 +8,26 @@ class CasacoreTableModel(QAbstractTableModel):
     """
     https://stackoverflow.com/questions/19411101/pyside-qtableview-example
     """
-    #_table = None
+    _table: Table
     _querytable: Table | None = None
 
     def __init__(self, parent, table: Table, *args):
         """doc"""
         super().__init__(parent)
-        self._table = table # Table& const table; pointer is not allowed to be reassigned
-        #self._querytable = self._table
+        self._table = table
+        self._querytable = self._table
 
         # Experimental
         self._showindex = True
 
     @property
     def table(self):
+        """doc"""
         return self._table
 
     @property
     def querytable(self):
+        """doc"""
         return self._querytable
     
     @querytable.setter
@@ -52,6 +54,8 @@ class CasacoreTableModel(QAbstractTableModel):
         if not index.isValid():
             return None
         elif role != Qt.DisplayRole:
+            return None
+        if not self._querytable:
             return None
         if not self._showindex:
             return str(self._querytable[index.row()][self._querytable.colnames()[index.column()]])

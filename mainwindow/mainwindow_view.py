@@ -20,9 +20,7 @@ from PySide6.QtCore import (
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtGui import QAction, QIcon
 
-from pandas import DataFrame
 from casacore.tables import table as Table
-from casacore.tables import taql
 from mainwindow.mainwindow_viewmodel import MainWindowViewModel
 from mpl_canvas_widget import MplCanvasWidget
 
@@ -97,28 +95,33 @@ class MainWindow(QMainWindow):
         self.viewmodel.on_model_set.connect(lambda: self.tableview.setModel(self.viewmodel.tablemodel))
 
         # commands
+        self.openaction.triggered.connect(self.open_ms)
+        
+        # two-way binding
         self.queryedit.editingFinished.connect(self.run_query)
-        self.openaction.triggered.connect(self.load_ms)
+        #self.viewmodel.query_changed.connect(self.queryedit.setText)
 
-
-    def run_query(self):
-        """doc"""
-        try:
-            self.viewmodel.execute_query(self.queryedit.text())
-            QToolTip.hideText()
-        except RuntimeError as e:
-            QToolTip.showText(self.queryedit.mapToGlobal(self.queryedit.pos()), str(e))
-
-    def load_ms(self):
-        """doc"""
+    @Slot()
+    def open_ms(self):
+        """
+        Runs a file dialog and triggers a measurement set load then
+        reruns the measurement set query.
+        """
         ms_path = QFileDialog.getExistingDirectory(self.centralWidget())
         if ms_path:
-            self.viewmodel.tablemodel = CasacoreTableModel(
-                self.centralWidget(),
-                Table(ms_path, ack=False)
-            )
+            self.viewmodel.load_ms(ms_path)
             self.run_query()
 
         self.statusBar().showMessage("Ready", 2000)
         print(self.statusBar().currentMessage())
         self.statusBar().reformat()
+
+    @Slot()
+    def run_query(self):
+        """Passes the query text to the view model"""
+        try:
+            self.viewmodel.taqlquery = self.queryedit.text()
+            QToolTip.hideText()
+        except RuntimeError as e:
+            # TODO: move to viewmodel.queryfailed handler
+            QToolTip.showText(self.queryedit.mapToGlobal(self.queryedit.pos()), str(e))

@@ -19,7 +19,7 @@ if __name__ == "__main__":
         Table("/home/callan/Code/icrar/msdata/ska/AA05LOW.ms/", ack=False)
     )
     window.queryedit.setText("select * from $t LIMIT 10000")
-    window.viewmodel.execute_query(window.queryedit.text())
+    window.queryedit.editingFinished.emit()
 
     window.centralWidget().show()
     sys.exit(app.exec())
