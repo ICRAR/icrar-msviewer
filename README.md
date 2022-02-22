@@ -1,6 +1,6 @@
 # ICRAR MS Viewer
 
-Visualization applet for casacore measurement sets.
+Radio astronomy data visualization applet for casacore measurement sets.
 
 ## Architecture
 
