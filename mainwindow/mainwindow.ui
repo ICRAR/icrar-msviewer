@@ -115,6 +115,9 @@
               </item>
              </layout>
             </item>
+            <item>
+             <widget class="MplCanvasWidget" name="widget" native="true"/>
+            </item>
            </layout>
           </widget>
          </widget>
@@ -183,6 +186,14 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MplCanvasWidget</class>
+   <extends>QWidget</extends>
+   <header>mplcanvaswidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <slots>

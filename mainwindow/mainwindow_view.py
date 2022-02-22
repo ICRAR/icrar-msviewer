@@ -1,28 +1,43 @@
-# This Python file uses the following encoding: utf-8
+#
+#    ICRAR - International Centre for Radio Astronomy Research
+#    (c) UWA - The University of Western Australia, 2021
+#    Copyright by UWA (in the framework of the ICRAR)
+#    All rights reserved
+#
+#     This program is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This program is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
 import os
 from pathlib import Path
-from typing import Any
-import sys
-from overrides import overrides
 
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QTableView,
     QListView,
     QLineEdit, QSplitter, QFileDialog,
     QStatusBar, QProgressBar, QToolTip,
-    QTabWidget, QWidget
+    QTabWidget, QWidget, QAbstractItemView
 )
 from PySide6.QtCore import (
-    QObject, QFile, QAbstractTableModel,
-    Slot
+    QFile,
+    Slot,
+    QItemSelection
 )
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtGui import QAction, QIcon
 
-from casacore.tables import table as Table
 from mainwindow.mainwindow_model import MainWindowModel
 from mainwindow.mainwindow_viewmodel import MainWindowViewModel
-from canvas.mpl_canvas_widget import MplCanvasWidget
+from mainwindow.mpl_canvas_widget import MplCanvasWidget
 
 
 class MainWindow(QMainWindow):
@@ -40,11 +55,7 @@ class MainWindow(QMainWindow):
         self._viewmodel = MainWindowViewModel(self.centralWidget(), MainWindowModel())
         self.load_ui()
 
-        # TODO experimental
         self.tabwidget = self.findChild(QTabWidget)
-        self.tabwidget.findChild(QWidget, "tab_3")\
-            .layout()\
-            .addWidget(MplCanvasWidget(self.tabwidget))
         self.tabwidget.setCurrentIndex(0)
 
     @property
@@ -56,30 +67,22 @@ class MainWindow(QMainWindow):
         """_summary_
         """
         loader = QUiLoader()
+        loader.registerCustomWidget(MplCanvasWidget)
         path = os.fspath(Path(__file__).resolve().parent / "mainwindow.ui")
         ui_file = QFile(path)
         ui_file.open(QFile.ReadOnly)
         loader.load(ui_file, self)
         ui_file.close()
 
+        # status bar
+        self.statusBar = self.centralWidget().statusBar()
+        self.viewmodel.on_status_message.connect(self.statusBar.showMessage)
+        #self.statusProgressBar = QProgressBar(self.centralWidget())
+        #self.statusBar.addPermanentWidget(self.statusProgressBar)
+        #self.statusProgressBar.setValue(0)
+
         # layout
         self.findChild(QSplitter).setStretchFactor(1,1)
-
-        # print(self.statusBar())
-        # print(self.findChild(QStatusBar))
-        # print(self.statusBar().isSizeGripEnabled())
-        # self.statusBar().setSizeGripEnabled(False)
-        # print(self.statusBar().isSizeGripEnabled())
-        # self.setStatusBar(self.statusBar())
-        #self.statusBar().reformat()
-        
-        # status = QStatusBar(self)
-        # status.resize(self.size().width(), 10)
-        # status.showMessage("Welcome!", 10)
-        # self.setStatusBar(status)
-        #self.statusProgressBar = QProgressBar(self.centralWidget())
-        #self.statusBar().addPermanentWidget(self.statusProgressBar)
-        #self.statusProgressBar.setValue(51)
 
         # bindings
         # Since Qt XML has binding not have binding syntax, if the model gets reassigned
@@ -89,22 +92,38 @@ class MainWindow(QMainWindow):
         self.queryedit = self.findChild(QLineEdit)
         self.openaction = self.findChild(QAction)
 
+        # update view model references and trigger handlers
+        self.update_listmodel()
+        self.update_tablemodel()
+
         # handlers
-        self.viewmodel.on_list_model_set.connect(self.set_listmodel)
-        self.viewmodel.on_table_model_set.connect(self.set_tablemodel)
+        self.viewmodel.on_list_model_set.connect(self.update_listmodel)
+        self.viewmodel.on_table_model_set.connect(self.update_tablemodel)
+        self.listview.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.listview.selectionModel().selectionChanged.connect(self.table_selection_changed)
 
         # commands
         self.openaction.triggered.connect(self.open_ms)
-        
+
         # two-way binding
         self.queryedit.editingFinished.connect(self.run_query)
         #self.viewmodel.query_changed.connect(self.queryedit.setText)
 
-    def set_listmodel(self):
+
+    @Slot()
+    def update_listmodel(self):
+        """doc"""
         self.listview.setModel(self.viewmodel.listmodel)
 
-    def set_tablemodel(self):
+    @Slot()
+    def update_tablemodel(self):
+        """doc"""
         self.tableview.setModel(self.viewmodel.tablemodel)
+
+    def table_selection_changed(self, selected: QItemSelection, deselected: QItemSelection):
+        """doc"""
+        if len(selected.indexes()) == 1:
+            self.viewmodel.select_ms(selected.indexes()[0].row())
 
     @Slot()
     def open_ms(self):
@@ -116,10 +135,6 @@ class MainWindow(QMainWindow):
         if ms_path:
             self.viewmodel.load_ms(ms_path)
             self.run_query()
-
-        self.statusBar().showMessage("Ready", 2000)
-        print(self.statusBar().currentMessage())
-        self.statusBar().reformat()
 
     @Slot()
     def run_query(self):
