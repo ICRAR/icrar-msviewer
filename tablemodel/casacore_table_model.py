@@ -1,8 +1,8 @@
-from ast import List
+from typing import List
 from overrides import overrides
 from casacore.tables import table as Table
 
-from PySide6.QtCore import QAbstractTableModel, Qt, QModelIndex, QPersistentModelIndex, SIGNAL
+from PySide6.QtCore import QAbstractTableModel, Qt, QModelIndex, SIGNAL
 
 class CasacoreTableModel(QAbstractTableModel):
     """

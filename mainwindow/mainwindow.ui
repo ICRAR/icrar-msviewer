@@ -35,6 +35,9 @@
       <widget class="QWidget" name="leftBox">
        <layout class="QVBoxLayout" name="verticalLayout2">
         <item>
+         <widget class="QListView" name="listView"/>
+        </item>
+        <item>
          <widget class="QTreeView" name="treeView"/>
         </item>
        </layout>

@@ -5,6 +5,7 @@ from PySide6.QtCore import Qt, QCoreApplication
 from PySide6.QtGui import QIcon
 
 from casacore.tables import table as Table
+from listmodel.casacore_list_model import CasacoreItemModel
 from mainwindow.mainwindow_view import MainWindow
 from tablemodel.casacore_table_model import CasacoreTableModel
 
@@ -14,11 +15,19 @@ if __name__ == "__main__":
     app.setWindowIcon(QIcon("icon.ico"))
     window = MainWindow()
 
-    window.viewmodel.tablemodel = CasacoreTableModel(
+    window.viewmodel.listmodel = CasacoreItemModel(
         window.centralWidget(),
-        Table("/home/callan/Code/icrar/msdata/ska/AA05LOW.ms/", ack=False)
+        []
     )
-    window.queryedit.setText("select * from $t LIMIT 10000")
+
+    if len(sys.argv) == 2:
+        table = Table(sys.argv[1], ack=False)
+        window.viewmodel.listmodel.append(table)
+        window.viewmodel.tablemodel = CasacoreTableModel(
+            window.centralWidget(),
+            table
+        )
+    window.queryedit.setText("SELECT * FROM $t LIMIT 10000")
     window.queryedit.editingFinished.emit()
 
     window.centralWidget().show()

@@ -1,3 +1,5 @@
 python-casacore
 PySide6
 overrides
+matplotlib
+pandas

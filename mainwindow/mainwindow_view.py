@@ -7,30 +7,27 @@ from overrides import overrides
 
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QTableView,
+    QListView,
     QLineEdit, QSplitter, QFileDialog,
     QStatusBar, QProgressBar, QToolTip,
     QTabWidget, QWidget
 )
 from PySide6.QtCore import (
     QObject, QFile, QAbstractTableModel,
-    Qt, QCoreApplication, Signal,
-    QModelIndex, QPersistentModelIndex, SIGNAL,
     Slot
 )
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtGui import QAction, QIcon
 
 from casacore.tables import table as Table
+from mainwindow.mainwindow_model import MainWindowModel
 from mainwindow.mainwindow_viewmodel import MainWindowViewModel
-from mpl_canvas_widget import MplCanvasWidget
-
-from tablemodel.casacore_table_model import CasacoreTableModel
-from tablemodel.pandas_table_model import PandasTableModel
+from canvas.mpl_canvas_widget import MplCanvasWidget
 
 
 class MainWindow(QMainWindow):
     """
-    Main window component of icrar casacore explorer.
+    Main window view bindings of icrar ms viewer.
     Current primary responsibility is displaying table view.
     Binding to viewmodels is performed via code.
     Views contain the app heirarchy/backbone.
@@ -40,7 +37,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self._viewmodel = MainWindowViewModel(self)
+        self._viewmodel = MainWindowViewModel(self.centralWidget(), MainWindowModel())
         self.load_ui()
 
         # TODO experimental
@@ -88,11 +85,13 @@ class MainWindow(QMainWindow):
         # Since Qt XML has binding not have binding syntax, if the model gets reassigned
         # then child view components should fetch the model.
         self.tableview = self.findChild(QTableView)
+        self.listview = self.findChild(QListView)
         self.queryedit = self.findChild(QLineEdit)
         self.openaction = self.findChild(QAction)
 
         # handlers
-        self.viewmodel.on_model_set.connect(lambda: self.tableview.setModel(self.viewmodel.tablemodel))
+        self.viewmodel.on_list_model_set.connect(self.set_listmodel)
+        self.viewmodel.on_table_model_set.connect(self.set_tablemodel)
 
         # commands
         self.openaction.triggered.connect(self.open_ms)
@@ -100,6 +99,12 @@ class MainWindow(QMainWindow):
         # two-way binding
         self.queryedit.editingFinished.connect(self.run_query)
         #self.viewmodel.query_changed.connect(self.queryedit.setText)
+
+    def set_listmodel(self):
+        self.listview.setModel(self.viewmodel.listmodel)
+
+    def set_tablemodel(self):
+        self.tableview.setModel(self.viewmodel.tablemodel)
 
     @Slot()
     def open_ms(self):
