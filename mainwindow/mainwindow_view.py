@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
     QListView,
     QLineEdit, QSplitter, QFileDialog,
     QStatusBar, QProgressBar, QToolTip,
-    QTabWidget, QWidget, QAbstractItemView
+    QTabWidget, QWidget, QAbstractItemView, QMessageBox
 )
 from PySide6.QtCore import (
     QFile,
@@ -77,9 +77,10 @@ class MainWindow(QMainWindow):
         # status bar
         self.statusBar = self.centralWidget().statusBar()
         self.viewmodel.on_status_message.connect(self.statusBar.showMessage)
+        
         #self.statusProgressBar = QProgressBar(self.centralWidget())
-        #self.statusBar.addPermanentWidget(self.statusProgressBar)
         #self.statusProgressBar.setValue(0)
+        #self.statusBar.addPermanentWidget(self.statusProgressBar)
 
         # layout
         self.findChild(QSplitter).setStretchFactor(1,1)
@@ -90,7 +91,9 @@ class MainWindow(QMainWindow):
         self.tableview = self.findChild(QTableView)
         self.listview = self.findChild(QListView)
         self.queryedit = self.findChild(QLineEdit)
-        self.openaction = self.findChild(QAction)
+        self.openaction = self.findChild(QAction, "actionOpen_MS")
+        self.aboutaction = self.findChild(QAction, "actionAbout")
+        
 
         # update view model references and trigger handlers
         self.update_listmodel()
@@ -104,11 +107,16 @@ class MainWindow(QMainWindow):
 
         # commands
         self.openaction.triggered.connect(self.open_ms)
+        self.aboutaction.triggered.connect(self.show_about)
 
         # two-way binding
         self.queryedit.editingFinished.connect(self.run_query)
         #self.viewmodel.query_changed.connect(self.queryedit.setText)
 
+    @Slot()
+    def show_about(self):
+        with open("LICENSE", 'r') as f:
+            QMessageBox.about(self.centralWidget(), "About", f.read())
 
     @Slot()
     def update_listmodel(self):

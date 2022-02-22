@@ -70,15 +70,15 @@ class MainWindowViewModel(QObject):
 
     @taqlquery.setter
     def taqlquery(self, value):
-        self._taqlquery = value
+        self._model.taqlquery = value
         self._execute_query()
 
     def _execute_query(self):
         """doc"""
-        if isinstance(self.tablemodel, CasacoreTableModel):
+        if self._model.taqlquery and isinstance(self.tablemodel, CasacoreTableModel):
             t = self.tablemodel.table
             # NOTE: query resolves interpreter variables with $, e.g. $t
-            self.tablemodel.querytable = taql(self._taqlquery, tables=[t])
+            self.tablemodel.querytable = taql(self._model.taqlquery, tables=[t])
 
     def load_ms(self, ms_path):
         """Loads a casacore table to the list of open ms"""
@@ -86,13 +86,15 @@ class MainWindowViewModel(QObject):
         self.listmodel.append(table)
         # TODO: alternatively treat this as a ModelView and only update the internal table
         self.tablemodel = CasacoreTableModel(None, table)
-        self.on_status_message.emit(f"Opened {ms_path}", 3000)
+        self._execute_query()
+        self.on_status_message.emit(f"Opened MS {ms_path}", 3000)
 
 
     def select_ms(self, index):
         """selects an already loaded ms"""
         self.tablemodel = CasacoreTableModel(None, self.listmodel.get(index))
-        self.on_status_message.emit(f"Selected {self.listmodel.get(index).name()}", 3000)
+        self._execute_query()
+        self.on_status_message.emit(f"Selected MS {self.listmodel.get(index).name()}", 3000)
 
     @Slot()
     def toggle_show_index(self):

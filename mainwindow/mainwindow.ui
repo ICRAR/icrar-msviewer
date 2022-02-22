@@ -195,8 +195,9 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+ </connections>
  <slots>
-  <slot>openmspressed()</slot>
+  <slot>testslot()</slot>
  </slots>
 </ui>

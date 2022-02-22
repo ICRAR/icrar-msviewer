@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 6.0.2, 2022-02-18T13:47:42. -->
+<!-- Written by QtCreator 6.0.2, 2022-02-22T15:08:43. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -116,18 +116,52 @@
     <valuelist type="QVariantList" key="CustomOutputParsers"/>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">/home/callan/Code/icrar/icrar-ms-explorer/mainwindow.py</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">PythonEditor.RunConfiguration./home/callan/Code/icrar/icrar-ms-explorer/mainwindow.py</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/home/callan/Code/icrar/icrar-ms-explorer/mainwindow.py</value>
-    <value type="QString" key="PythonEditor.RunConfiguation.Interpreter">{4ee6f651-8bbf-4990-9a93-39ce38aa4b5d}</value>
-    <value type="QString" key="PythonEditor.RunConfiguation.Script">/home/callan/Code/icrar/icrar-ms-explorer/mainwindow.py</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">/home/callan/Code/icrar/icrar-ms-viewer/mainwindow/mainwindow_viewmodel.py</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">PythonEditor.RunConfiguration./home/callan/Code/icrar/icrar-ms-viewer/mainwindow/mainwindow_viewmodel.py</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/home/callan/Code/icrar/icrar-ms-viewer/mainwindow/mainwindow_viewmodel.py</value>
+    <value type="QString" key="PythonEditor.RunConfiguation.Interpreter">{5c667588-892f-4d2b-90b5-17bd7620b7b3}</value>
+    <value type="QString" key="PythonEditor.RunConfiguation.Script">/home/callan/Code/icrar/icrar-ms-viewer/mainwindow/mainwindow_viewmodel.py</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/home/callan/Code/icrar/icrar-ms-explorer</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/home/callan/Code/icrar/icrar-ms-viewer/mainwindow</value>
    </valuemap>
-   <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.1">
+    <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
+    <value type="bool" key="Analyzer.QmlProfiler.Settings.UseGlobalSettings">true</value>
+    <value type="bool" key="Analyzer.Valgrind.Settings.UseGlobalSettings">true</value>
+    <valuelist type="QVariantList" key="CustomOutputParsers"/>
+    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
+    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">/home/callan/Code/icrar/icrar-ms-viewer/mainwindow/mainwindow_view.py</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">PythonEditor.RunConfiguration./home/callan/Code/icrar/icrar-ms-viewer/mainwindow/mainwindow_view.py</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/home/callan/Code/icrar/icrar-ms-viewer/mainwindow/mainwindow_view.py</value>
+    <value type="QString" key="PythonEditor.RunConfiguation.Script">/home/callan/Code/icrar/icrar-ms-viewer/mainwindow/mainwindow_view.py</value>
+    <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
+    <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
+    <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
+    <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/home/callan/Code/icrar/icrar-ms-viewer/mainwindow</value>
+   </valuemap>
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.2">
+    <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
+    <value type="bool" key="Analyzer.QmlProfiler.Settings.UseGlobalSettings">true</value>
+    <value type="bool" key="Analyzer.Valgrind.Settings.UseGlobalSettings">true</value>
+    <valuelist type="QVariantList" key="CustomOutputParsers"/>
+    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
+    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">/home/callan/Code/icrar/icrar-ms-viewer/mainwindow/mainwindow_model.py</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">PythonEditor.RunConfiguration./home/callan/Code/icrar/icrar-ms-viewer/mainwindow/mainwindow_model.py</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/home/callan/Code/icrar/icrar-ms-viewer/mainwindow/mainwindow_model.py</value>
+    <value type="QString" key="PythonEditor.RunConfiguation.Script">/home/callan/Code/icrar/icrar-ms-viewer/mainwindow/mainwindow_model.py</value>
+    <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
+    <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
+    <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
+    <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/home/callan/Code/icrar/icrar-ms-viewer/mainwindow</value>
+   </valuemap>
+   <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">3</value>
   </valuemap>
  </data>
  <data>

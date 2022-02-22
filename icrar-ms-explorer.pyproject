@@ -1,3 +1,3 @@
 {
-    "files": ["canvas/mpl_canvas_widget.py","mainwindow.py","form.ui","mainwindow/mainwindow_model.py","mainwindow/mainwindow_view.py","mainwindow/mainwindow_viewmodel.py","mainwindow/mainwindow.ui"]
+    "files": ["mainwindow/mainwindow_viewmodel.py","canvas/mpl_canvas_widget.py","mainwindow.py","mainwindow/mainwindow_view.py","form.ui","mainwindow/mainwindow_model.py","mainwindow/mainwindow.ui","mainwindow/about.ui"]
 }
