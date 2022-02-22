@@ -74,14 +74,19 @@ class MainWindowViewModel(QObject):
         self._execute_query()
 
     def _execute_query(self):
-        """doc"""
+        """
+        Triggers the querying of the selected table using the current
+        model query string.
+        """
         if self._model.taqlquery and isinstance(self.tablemodel, CasacoreTableModel):
             t = self.tablemodel.table
             # NOTE: query resolves interpreter variables with $, e.g. $t
             self.tablemodel.querytable = taql(self._model.taqlquery, tables=[t])
 
     def load_ms(self, ms_path):
-        """Loads a casacore table to the list of open ms"""
+        """
+        Loads a casacore table to the list of open ms
+        """
         table = Table(ms_path, ack=False)
         self.listmodel.append(table)
         # TODO: alternatively treat this as a ModelView and only update the internal table
@@ -91,7 +96,9 @@ class MainWindowViewModel(QObject):
 
 
     def select_ms(self, index):
-        """selects an already loaded ms"""
+        """
+        Selects an already loaded measurement set
+        """
         self.tablemodel = CasacoreTableModel(None, self.listmodel.get(index))
         self._execute_query()
         self.on_status_message.emit(f"Selected MS {self.listmodel.get(index).name()}", 3000)
