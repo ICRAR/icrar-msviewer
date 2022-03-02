@@ -1,3 +1,4 @@
-include icon.ico
-include COPYRIGHT
 include LICENSE
+include icrar/icon.ico
+include icrar/mainwindow/COPYRIGHT
+include icrar/mainwindow/mainwindow.ui
