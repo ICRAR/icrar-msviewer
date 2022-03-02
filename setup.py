@@ -8,7 +8,7 @@ with open('VERSION.txt', encoding='utf-8') as version_file:
     version = version_file.read().strip()
 
 setup(
-    name='icrar-ms-viewer',
+    name='icrar-msviewer',
     version=version,
     description="",
     long_description=readme,
@@ -19,7 +19,7 @@ setup(
     packages=find_packages(exclude=['tests']),
     entry_points={
         'console_scripts': [
-            'ms-viewer=icrar.ms_viewer:main'
+            'msviewer=icrar.msviewer:main'
         ]
     },
     license="GNU General Public License v2 or later (GPLv2+)",

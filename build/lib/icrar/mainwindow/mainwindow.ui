@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>ICRAR Viewer</string>
+   <string>ICRAR MSViewer</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">

@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>ICRAR Viewer</string>
+   <string>ICRAR MSViewer</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -142,7 +142,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_MS"/>
-    <addaction name="actionOpen_Workspace"/>
+    <!-- <addaction name="actionOpen_Workspace"/> -->
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
