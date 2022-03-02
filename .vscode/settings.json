@@ -1,0 +1,7 @@
+{
+    "python.linting.pylintArgs": [
+        "--disable", "invalid-name",
+        "--disable", "missing-class-docstring",
+        "--disable", "missing-function-docstring"
+    ]
+}

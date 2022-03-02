@@ -17,10 +17,11 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
+import time
 from casacore.tables import table as Table
 from PySide6.QtCore import QAbstractTableModel, Qt, QModelIndex, SIGNAL
 
-class CasacoreTableModel(QAbstractTableModel):
+class MSTableModel(QAbstractTableModel):
     """
     https://stackoverflow.com/questions/19411101/pyside-qtableview-example
     """
@@ -32,9 +33,11 @@ class CasacoreTableModel(QAbstractTableModel):
         super().__init__(parent)
         self._table = table
         self._querytable = self._table
+        self._queryrownumbers = self._querytable.rownumbers()
 
         # Experimental
         self._showindex = True
+        self._capmodelrows = 1000
 
     @property
     def table(self):
@@ -50,6 +53,7 @@ class CasacoreTableModel(QAbstractTableModel):
     def querytable(self, value):
         self.emit(SIGNAL("layoutAboutToBeChanged()"))
         self._querytable = value
+        self._queryrownumbers = self._querytable.rownumbers()
         self.emit(SIGNAL("layoutChanged()"))
 
     # @overrides
@@ -76,7 +80,14 @@ class CasacoreTableModel(QAbstractTableModel):
         if not self._showindex:
             return str(self._querytable[index.row()][self._querytable.colnames()[index.column()]])
         else:
-            return self._querytable.rownumbers()[index.row()] if index.column() == 0 else str(self._querytable[index.row()][self._querytable.colnames()[index.column()-1]])
+            start = time.time()
+            if index.column() == 0:
+                res = str(self._queryrownumbers[index.row()])
+            else:
+                res = str(self._querytable[index.row()][self._querytable.colnames()[index.column()-1]])
+            end = time.time()
+            #print(f"data[{index.row()},{index.column()}] , {end-start}")
+            return res
 
     # @overrides
     def headerData(self, col, orientation: Qt.Orientation, role: Qt.ItemDataRole):
@@ -98,7 +109,7 @@ class CasacoreTableModel(QAbstractTableModel):
     # @overrides
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
         """docs"""
-        default = Qt.ItemNeverHasChildren | Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
+        default = Qt.ItemNeverHasChildren | Qt.ItemIsEnabled # | Qt.ItemIsSelectable | Qt.ItemIsEditable
         if not self._showindex:
             return default
         else:
@@ -107,9 +118,10 @@ class CasacoreTableModel(QAbstractTableModel):
     # @overrides
     def setData(self, index, value, role: Qt.ItemDataRole):
         """docs"""
-        datatype = self.df[self.df.columns[index.column()]].dtype
-        try:
-            self.df.iloc[index.row(), index.column()] = datatype.type(value)
-            return True
-        except ValueError:
-            return False
+        return False
+        # datatype = self.df[self.df.columns[index.column()]].dtype
+        # try:
+        #     self.df.iloc[index.row(), index.column()] = datatype.type(value)
+        #     return True
+        # except ValueError:
+        #     return False

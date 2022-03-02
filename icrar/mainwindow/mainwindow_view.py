@@ -35,9 +35,9 @@ from PySide6.QtCore import (
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtGui import QAction, QIcon
 
-from mainwindow.mainwindow_model import MainWindowModel
-from mainwindow.mainwindow_viewmodel import MainWindowViewModel
-from mainwindow.mpl_canvas_widget import MplCanvasWidget
+from icrar.mainwindow.mainwindow_model import MainWindowModel
+from icrar.mainwindow.mainwindow_viewmodel import MainWindowViewModel
+from icrar.mainwindow.mpl_canvas_widget import MplCanvasWidget
 
 
 class MainWindow(QMainWindow):
@@ -115,7 +115,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def show_about(self):
-        with open("LICENSE", 'r') as f:
+        with open("COPYRIGHT", 'r') as f:
             QMessageBox.about(self.centralWidget(), "About", f.read())
 
     @Slot()

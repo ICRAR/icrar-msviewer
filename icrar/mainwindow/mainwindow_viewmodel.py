@@ -17,19 +17,22 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
+import time
 from PySide6.QtCore import QObject, Signal, Slot
 from casacore.tables import table as Table
 from casacore.tables import taql
-from listmodel.casacore_list_model import CasacoreListModel
-from mainwindow.mainwindow_model import MainWindowModel
-from tablemodel.casacore_table_model import CasacoreTableModel
+from icrar.listmodel.ms_list_model import MSListModel
+from icrar.mainwindow.mainwindow_model import MainWindowModel
+from icrar.mainwindow.msinfo.msinfo_viewmodel import MSInfoViewModel
+from icrar.tablemodel.ms_table_model import MSTableModel
 
 
 class MainWindowViewModel(QObject):
     """doc"""
     _model: MainWindowModel
-    _list_viewmodel: CasacoreListModel
-    _selected_table_viewmodel: CasacoreTableModel | None = None
+    _list_viewmodel: MSListModel
+    _selected_table_viewmodel: MSTableModel | None = None
+    _info_viewmodel: MSInfoViewModel | None = None
 
     # TODO: only publicly expose connect and disconnect
 
@@ -41,7 +44,7 @@ class MainWindowViewModel(QObject):
     def __init__(self, parent: QObject, model: MainWindowModel):
         super().__init__(parent)
         self._model = model
-        self._list_viewmodel = CasacoreListModel(parent, [])
+        self._list_viewmodel = MSListModel(parent, [])
 
     @property
     def listmodel(self):
@@ -78,10 +81,14 @@ class MainWindowViewModel(QObject):
         Triggers the querying of the selected table using the current
         model query string.
         """
-        if self._model.taqlquery and isinstance(self.tablemodel, CasacoreTableModel):
+        if self._model.taqlquery and isinstance(self.tablemodel, MSTableModel):
             t = self.tablemodel.table
             # NOTE: query resolves interpreter variables with $, e.g. $t
-            self.tablemodel.querytable = taql(self._model.taqlquery, tables=[t])
+            start = time.time()
+            self.tablemodel.querytable = taql(self._model.taqlquery, tables=[t], locals={"":""})
+            end = time.time()
+            time_ms = (end-start)*1000.0
+            self.on_status_message.emit(f"Queried MS {self.tablemodel.table.name()} in {time_ms}ms", 3000)
 
     def load_ms(self, ms_path):
         """
@@ -90,7 +97,7 @@ class MainWindowViewModel(QObject):
         table = Table(ms_path, ack=False)
         self.listmodel.append(table)
         # TODO: alternatively treat this as a ModelView and only update the internal table
-        self.tablemodel = CasacoreTableModel(None, table)
+        self.tablemodel = MSTableModel(None, table)
         self._execute_query()
         self.on_status_message.emit(f"Opened MS {ms_path}", 3000)
 
@@ -99,9 +106,9 @@ class MainWindowViewModel(QObject):
         """
         Selects an already loaded measurement set
         """
-        self.tablemodel = CasacoreTableModel(None, self.listmodel.get(index))
+        self.tablemodel = MSTableModel(None, self.listmodel.get(index))
         self._execute_query()
-        self.on_status_message.emit(f"Selected MS {self.listmodel.get(index).name()}", 3000)
+        self.on_status_message.emit(f"Selected MS {self.tablemodel.table.name()}", 3000)
 
     @Slot()
     def toggle_show_index(self):

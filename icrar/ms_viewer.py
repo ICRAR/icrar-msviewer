@@ -23,10 +23,9 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QCoreApplication
 from PySide6.QtGui import QIcon
 
-from casacore.tables import table as Table
-from mainwindow.mainwindow_view import MainWindow
+from icrar.mainwindow.mainwindow_view import MainWindow
 
-if __name__ == "__main__":
+def main():
     QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
     app = QApplication([])
     app.setWindowIcon(QIcon("icon.ico"))
@@ -35,7 +34,10 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         for i in range(1, len(sys.argv)):
             window.viewmodel.load_ms(sys.argv[i])
-    window.queryedit.setText("SELECT * FROM $t LIMIT 10000")
+    window.queryedit.setText("SELECT * FROM $1 LIMIT 100000000")
     window.queryedit.editingFinished.emit()
     window.centralWidget().show()
     sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main()

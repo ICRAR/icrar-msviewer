@@ -21,7 +21,7 @@ from typing import List
 from casacore.tables import table as Table
 from PySide6.QtCore import QAbstractListModel, Qt, QModelIndex, SIGNAL
 
-class CasacoreListModel(QAbstractListModel):
+class MSListModel(QAbstractListModel):
     """Provides a viewmodel for a list of open casacore ms"""
     _list: List[Table]
 

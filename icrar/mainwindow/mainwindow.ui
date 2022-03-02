@@ -87,7 +87,7 @@
           </widget>
           <widget class="QWidget" name="tab_3">
            <attribute name="title">
-            <string>Dirty Image</string>
+            <string>Gridding</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout2">
             <item>

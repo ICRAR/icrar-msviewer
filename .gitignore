@@ -64,6 +64,7 @@ Thumbs.db
 *.Release
 
 # Python byte code
+__pycache__/
 *.pyc
 
 # Binaries
@@ -71,3 +72,4 @@ Thumbs.db
 *.dll
 *.exe
 
+*.egg-info
