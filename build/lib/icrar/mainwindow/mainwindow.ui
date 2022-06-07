@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <widget class="MainWindow" name="MainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -142,7 +142,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_MS"/>
-    <addaction name="actionOpen_Workspace"/>
+    <!-- <addaction name="actionOpen_Workspace"/> -->
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">

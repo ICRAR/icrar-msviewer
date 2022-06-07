@@ -20,6 +20,7 @@
 import os
 from pathlib import Path
 import pathlib
+from typing import Type, TypeVar
 
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QTableView,
@@ -38,8 +39,8 @@ from PySide6.QtGui import QAction, QIcon
 
 from icrar.mainwindow.mainwindow_model import MainWindowModel
 from icrar.mainwindow.mainwindow_viewmodel import MainWindowViewModel
-from icrar.mainwindow.mpl_canvas_widget import MplCanvasWidget
 
+T = TypeVar('T')
 
 class MainWindow(QMainWindow):
     """
@@ -51,37 +52,29 @@ class MainWindow(QMainWindow):
     """
     _viewmodel: MainWindowViewModel
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self._viewmodel = MainWindowViewModel(self.centralWidget(), MainWindowModel())
-        self.load_ui()
+        #self.load_ui()
 
-        self.tabwidget = self.findChild(QTabWidget)
-        self.tabwidget.setCurrentIndex(0)
 
     @property
     def viewmodel(self):
         """Returns the viewmodel"""
         return self._viewmodel
 
+    def findChild(self, t: Type, name = None) -> Type:
+        return super().findChild(t, name)  # type: ignore
+
     def load_ui(self):
         """_summary_
         """
-        loader = QUiLoader()
-        loader.registerCustomWidget(MplCanvasWidget)
-        path = os.fspath(Path(__file__).resolve().parent / "mainwindow.ui")
-        ui_file = QFile(path)
-        ui_file.open(QFile.ReadOnly)
-        loader.load(ui_file, self)
-        ui_file.close()
-
         # status bar
-        self.statusBar = self.centralWidget().statusBar()
-        self.viewmodel.on_status_message.connect(self.statusBar.showMessage)
+        self.viewmodel.on_status_message.connect(self.statusBar().showMessage)
         
         #self.statusProgressBar = QProgressBar(self.centralWidget())
         #self.statusProgressBar.setValue(0)
-        #self.statusBar.addPermanentWidget(self.statusProgressBar)
+        #self.statusBar().addPermanentWidget(self.statusProgressBar)
 
         # layout
         self.findChild(QSplitter).setStretchFactor(1,1)
@@ -113,6 +106,10 @@ class MainWindow(QMainWindow):
         # two-way binding
         self.queryedit.editingFinished.connect(self.run_query)
         #self.viewmodel.query_changed.connect(self.queryedit.setText)
+
+        # qsplitter
+        self.tabwidget = self.findChild(QTabWidget)
+        self.tabwidget.setCurrentIndex(0)
 
     @Slot()
     def show_about(self):

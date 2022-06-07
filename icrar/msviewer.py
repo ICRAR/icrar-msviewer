@@ -17,27 +17,42 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
+import os
 import pathlib
 import sys
 
-from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import Qt, QCoreApplication
+from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtCore import Qt, QCoreApplication, QFile
 from PySide6.QtGui import QIcon
+from PySide6.QtQuick import QQuickWindow, QSGRendererInterface
+from PySide6.QtUiTools import QUiLoader
+from icrar.mainwindow.mpl_canvas_widget import MplCanvasWidget
 
 from icrar.mainwindow.mainwindow_view import MainWindow
 
 def main():
+    QQuickWindow.setGraphicsApi(QSGRendererInterface.OpenGLRhi)
     QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
-    app = QApplication([])
+    app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(str(pathlib.Path(__file__).parent.resolve()/"icon.ico")))
 
-    window = MainWindow()
+    loader = QUiLoader()
+    loader.registerCustomWidget(MainWindow)
+    loader.registerCustomWidget(MplCanvasWidget)
+    path = os.fspath(pathlib.Path(__file__).resolve().parent / "mainwindow/mainwindow.ui")
+    ui_file = QFile(path)
+    ui_file.open(QFile.ReadOnly)
+    loader.load(ui_file, None)
+    window: MainWindow = loader.load(path, None)  # type: ignore
+    window.load_ui()
+
     if len(sys.argv) > 1:
         for i in range(1, len(sys.argv)):
             window.viewmodel.load_ms(sys.argv[i])
     window.queryedit.setText("SELECT * FROM $1 LIMIT 1000000")
     window.queryedit.editingFinished.emit()
-    window.centralWidget().show()
+
+    window.show()
     sys.exit(app.exec())
 
 if __name__ == "__main__":
