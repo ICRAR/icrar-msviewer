@@ -64,6 +64,7 @@ Thumbs.db
 *.Release
 
 # Python byte code
+build/
 __pycache__/
 *.pyc
 
