@@ -44,13 +44,13 @@ def main():
     ui_file.open(QFile.ReadOnly)
     loader.load(ui_file, None)
     window: MainWindow = loader.load(path, None)  # type: ignore
-    window.load_ui()
+    window.initialize()
 
     if len(sys.argv) > 1:
         for i in range(1, len(sys.argv)):
             window.viewmodel.load_ms(sys.argv[i])
     window.queryedit.setText("SELECT * FROM $1 LIMIT 1000000")
-    window.queryedit.editingFinished.emit()
+    window.update_query()
 
     window.show()
     sys.exit(app.exec())

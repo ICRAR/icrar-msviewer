@@ -20,7 +20,7 @@
 import os
 from pathlib import Path
 import pathlib
-from typing import Type, TypeVar
+from typing import List, Type, TypeVar
 
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QTableView,
@@ -32,10 +32,14 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import (
     QFile,
     Slot,
-    QItemSelection
+    Signal,
+    QItemSelection,
+    QModelIndex
 )
+
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtGui import QAction, QIcon
+from icrar.listmodel.ms_list_model import MSListModel
 
 from icrar.mainwindow.mainwindow_model import MainWindowModel
 from icrar.mainwindow.mainwindow_viewmodel import MainWindowViewModel
@@ -49,105 +53,102 @@ class MainWindow(QMainWindow):
     Binding to viewmodels is performed via code.
     Views contain the app heirarchy/backbone.
     Views always own a single viewmodel context.
+
+    To modify the ui in Qt Designer change the widget class from MainWindow to QMainWindow
+    (the designer does not allow overriding QMainWindow)
     """
     _viewmodel: MainWindowViewModel
+    tableview: QTableView
+    listview: QListView
+    queryedit: QLineEdit
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self._viewmodel = MainWindowViewModel(self.centralWidget(), MainWindowModel())
-        #self.load_ui()
-
 
     @property
     def viewmodel(self):
         """Returns the viewmodel"""
         return self._viewmodel
 
-    def findChild(self, t: Type, name = None) -> Type:
+    def getChild(self, t: Type[T], name = None) -> T:
         return super().findChild(t, name)  # type: ignore
 
-    def load_ui(self):
-        """_summary_
-        """
-        # status bar
-        self.viewmodel.on_status_message.connect(self.statusBar().showMessage)
-        
-        #self.statusProgressBar = QProgressBar(self.centralWidget())
-        #self.statusProgressBar.setValue(0)
-        #self.statusBar().addPermanentWidget(self.statusProgressBar)
+    def initialize(self):
+        """Must be called after ui loading"""
+        self.tableview = self.getChild(QTableView)
+        self.listview = self.getChild(QListView)
+        self.queryedit = self.getChild(QLineEdit)
 
         # layout
-        self.findChild(QSplitter).setStretchFactor(1,1)
+        self.getChild(QSplitter).setStretchFactor(1,1)
+        self.getChild(QTabWidget).setCurrentIndex(0)
 
         # bindings
-        # Since Qt XML has binding not have binding syntax, if the model gets reassigned
-        # then child view components should fetch the model.
-        self.tableview = self.findChild(QTableView)
-        self.listview = self.findChild(QListView)
-        self.queryedit = self.findChild(QLineEdit)
-        self.openaction = self.findChild(QAction, "actionOpen_MS")
-        self.aboutaction = self.findChild(QAction, "actionAbout")
-        
-
+        # Since Qt XML does not have binding syntax, if the model gets reassigned
+        # then child view components must  refech fetch the model.
         # update view model references and trigger handlers
-        self.update_listmodel()
-        self.update_tablemodel()
+        self.update_listmodel(self.viewmodel.listmodel)
 
-        # handlers
+        # custom viewmodel signals
         self.viewmodel.on_list_model_set.connect(self.update_listmodel)
         self.viewmodel.on_table_model_set.connect(self.update_tablemodel)
-        self.listview.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.listview.selectionModel().selectionChanged.connect(self.table_selection_changed)
-
-        # commands
-        self.openaction.triggered.connect(self.open_ms)
-        self.aboutaction.triggered.connect(self.show_about)
-
-        # two-way binding
-        self.queryedit.editingFinished.connect(self.run_query)
-        #self.viewmodel.query_changed.connect(self.queryedit.setText)
-
-        # qsplitter
-        self.tabwidget = self.findChild(QTabWidget)
-        self.tabwidget.setCurrentIndex(0)
+        self.viewmodel.on_status_message.connect(self.statusBar().showMessage)
+        #self.viewmodel.on_query_failed.connect(self.query_failed)
 
     @Slot()
     def show_about(self):
-        with open(pathlib.Path(__file__).parent.resolve()/"COPYRIGHT", 'r') as f:
+        with open(pathlib.Path(__file__).parent.resolve()/"COPYRIGHT", 'r', encoding='utf-8') as f:
             QMessageBox.about(self.centralWidget(), "About", f.read())
 
-    @Slot()
-    def update_listmodel(self):
+    @Slot(MSListModel)
+    def update_listmodel(self, model: MSListModel):
         """doc"""
-        self.listview.setModel(self.viewmodel.listmodel)
+        self.listview.setModel(model)
+        # TODO: could moved to viewmodel
+        self.listview.selectionModel().selectionChanged.connect(self.select_active_ms)
 
     @Slot()
     def update_tablemodel(self):
         """doc"""
         self.tableview.setModel(self.viewmodel.tablemodel)
 
-    def table_selection_changed(self, selected: QItemSelection, deselected: QItemSelection):
+    @Slot()
+    def open_ms(self): #open_ms_dialog
+        """
+        Runs a file dialog and triggers a measurement set load then
+        reruns the measurement set query.
+        """
+        # TODO: ideally these belong in the viewmodel
+        ms_path = QFileDialog.getExistingDirectory(self.centralWidget())
+        if ms_path:
+            self.viewmodel.load_ms(ms_path)
+            self.update_query()
+
+    @Slot(QItemSelection, QItemSelection)
+    def select_active_ms(self, selected: QItemSelection, deselected: QItemSelection):
         """doc"""
         if len(selected.indexes()) == 1:
             self.viewmodel.select_ms(selected.indexes()[0].row())
 
     @Slot()
-    def open_ms(self):
-        """
-        Runs a file dialog and triggers a measurement set load then
-        reruns the measurement set query.
-        """
-        ms_path = QFileDialog.getExistingDirectory(self.centralWidget())
-        if ms_path:
-            self.viewmodel.load_ms(ms_path)
-            self.run_query()
-
-    @Slot()
-    def run_query(self):
+    def update_query(self):
         """Passes the query text to the view model"""
         try:
             self.viewmodel.taqlquery = self.queryedit.text()
             QToolTip.hideText()
         except RuntimeError as e:
-            # TODO: move to viewmodel.queryfailed handler
+            # TODO: move to queryfailed slot so try-except is in viewmodel
             QToolTip.showText(self.queryedit.mapToGlobal(self.queryedit.pos()), str(e))
+
+    @Slot()
+    def handle_query_passed(self):
+        QToolTip.hideText()
+
+    @Slot(str)
+    def handle_query_failed(self, message: str):
+        QToolTip.showText(self.queryedit.mapToGlobal(self.queryedit.pos()), message)
+
+    @Slot(QModelIndex)
+    def testslot(self, index: QModelIndex):
+        print(f"Test Slot! {index}")

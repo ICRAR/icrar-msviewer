@@ -20,6 +20,14 @@
    <string>ICRAR MSViewer</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>538</width>
+     <height>394</height>
+    </rect>
+   </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
      <horstretch>0</horstretch>
@@ -47,7 +55,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab_1">
            <attribute name="title">
@@ -142,7 +150,6 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_MS"/>
-    <!-- <addaction name="actionOpen_Workspace"/> -->
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -166,6 +173,14 @@
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>3</width>
+     <height>23</height>
+    </rect>
+   </property>
    <property name="sizeGripEnabled">
     <bool>true</bool>
    </property>
@@ -193,11 +208,84 @@
    <header>mplcanvaswidget.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>MainWindow</class>
+   <extends>QMainWindow</extends>
+   <header>mainwindow.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
+  <connection>
+   <sender>actionAbout</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>show_about()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_query()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>398</x>
+     <y>56</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionOpen_MS</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_ms()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>listView</sender>
+   <signal>clicked(QModelIndex)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>testslot(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>129</x>
+     <y>97</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
-  <slot>testslot()</slot>
+  <slot>testslot(QModelIndex)</slot>
+  <slot>update_query()</slot>
+  <slot>open_ms()</slot>
+  <slot>show_about()</slot>
  </slots>
 </ui>

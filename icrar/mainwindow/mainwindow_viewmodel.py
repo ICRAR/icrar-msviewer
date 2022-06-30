@@ -37,7 +37,7 @@ class MainWindowViewModel(QObject):
     # TODO: only publicly expose connect and disconnect
 
     on_status_message = Signal(str, int)
-    on_list_model_set = Signal() # opened ms list
+    on_list_model_set = Signal(MSListModel) # opened ms list
     # NOTE: table is changed by updating selected tablemodel
     on_table_model_set = Signal() # selected ms table
 
@@ -54,7 +54,7 @@ class MainWindowViewModel(QObject):
     @listmodel.setter
     def listmodel(self, value):
         self._list_viewmodel = value
-        self.on_list_model_set.emit()
+        self.on_list_model_set.emit(value)
 
     @property
     def tablemodel(self):
@@ -76,21 +76,7 @@ class MainWindowViewModel(QObject):
         self._model.taqlquery = value
         self._execute_query()
 
-    def _execute_query(self):
-        """
-        Triggers the querying of the selected table using the current
-        model query string.
-        """
-        if self._model.taqlquery and isinstance(self.tablemodel, MSTableModel):
-            t = self.tablemodel.table
-            # NOTE: query resolves interpreter variables with $, e.g. $t
-            start = time.time()
-            self.tablemodel.querytable = taql(self._model.taqlquery, tables=[t], locals={"":""})
-            end = time.time()
-            time_ms = (end-start)*1000.0
-            self.on_status_message.emit(f"Queried MS {self.tablemodel.table.name()} in {time_ms}ms", 3000)
-
-    def load_ms(self, ms_path):
+    def load_ms(self, ms_path: str):
         """
         Loads a casacore table to the list of open ms
         """
@@ -102,7 +88,7 @@ class MainWindowViewModel(QObject):
         self.on_status_message.emit(f"Opened MS {ms_path}", 3000)
 
 
-    def select_ms(self, index):
+    def select_ms(self, index: int):
         """
         Selects an already loaded measurement set
         """
@@ -114,3 +100,25 @@ class MainWindowViewModel(QObject):
     def toggle_show_index(self):
         """doc"""
         #self.table
+
+    def _execute_query(self):
+        """
+        Triggers the querying of the selected table using the current
+        model query string.
+        """
+        if self._model.taqlquery and isinstance(self.tablemodel, MSTableModel):
+            t = self.tablemodel.table
+            # NOTE: query resolves interpreter variables with $, e.g. $t
+            start = time.time()
+            self.tablemodel.querytable = taql(
+                self._model.taqlquery,
+                tables=[t],
+                locals={"":""}
+            )
+            end = time.time()
+            time_ms = (end-start)*1000.0
+
+            self.on_status_message.emit(
+                f"Queried MS {self.tablemodel.table.name()} in {time_ms}ms",
+                3000
+            )
