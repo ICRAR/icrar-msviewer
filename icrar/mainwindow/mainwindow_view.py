@@ -43,6 +43,7 @@ from icrar.listmodel.ms_list_model import MSListModel
 
 from icrar.mainwindow.mainwindow_model import MainWindowModel
 from icrar.mainwindow.mainwindow_viewmodel import MainWindowViewModel
+from icrar.msinfowidget.msinfowidget_view import MSInfoWidget
 
 T = TypeVar('T')
 
@@ -76,9 +77,19 @@ class MainWindow(QMainWindow):
 
     def initialize(self):
         """Must be called after ui loading"""
-        self.tableview = self.getChild(QTableView)
         self.listview = self.getChild(QListView)
-        self.queryedit = self.getChild(QLineEdit)
+        
+        # Table Data
+        self.tabledatatab = self.getChild(QWidget, "tab_1")
+        self.tableview = self.tabledatatab.findChild(QTableView)
+        self.queryedit = self.tabledatatab.findChild(QLineEdit)
+        # Table Desc
+        self.tabledesctab = self.getChild(QWidget, "tab_2")
+        self.msinfowidget = self.getChild(MSInfoWidget)
+        # DM Info
+        self.dminfotab = self.getChild(QWidget, "tab_3")
+        # Gridding
+        self.griddingtab = self.getChild(QWidget, "tab_4")
 
         # layout
         self.getChild(QSplitter).setStretchFactor(1,1)

@@ -29,6 +29,7 @@ from PySide6.QtUiTools import QUiLoader
 from icrar.mainwindow.mpl_canvas_widget import MplCanvasWidget
 
 from icrar.mainwindow.mainwindow_view import MainWindow
+from icrar.msinfowidget.msinfowidget_view import MSInfoWidget
 
 def main():
     QQuickWindow.setGraphicsApi(QSGRendererInterface.OpenGLRhi)
@@ -39,6 +40,7 @@ def main():
     loader = QUiLoader()
     loader.registerCustomWidget(MainWindow)
     loader.registerCustomWidget(MplCanvasWidget)
+    loader.registerCustomWidget(MSInfoWidget)
     path = os.fspath(pathlib.Path(__file__).resolve().parent / "mainwindow/mainwindow.ui")
     ui_file = QFile(path)
     ui_file.open(QFile.ReadOnly)

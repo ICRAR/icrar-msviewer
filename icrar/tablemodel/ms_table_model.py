@@ -70,33 +70,27 @@ class MSTableModel(QAbstractTableModel):
     # @overrides
     def data(self, index: QModelIndex, role: Qt.ItemDataRole) -> str | None:
         """doc"""
-        if not index.isValid():
-            return None
-        elif role != Qt.DisplayRole:
-            return None
-        if not self._querytable:
-            return None
-        if not self._showindex:
-            return str(self._querytable[index.row()][self._querytable.colnames()[index.column()]])
-        else:
-            start = time.time()
-            if index.column() == 0:
-                res = str(self._queryrownumbers[index.row()])
-            else:
-                res = str(self._querytable[index.row()][self._querytable.colnames()[index.column()-1]])
-            end = time.time()
-            #print(f"data[{index.row()},{index.column()}] , {end-start}")
-            return res
+        res = None
+        if index.isValid() and self._querytable:
+            if role == Qt.DisplayRole or role == Qt.ToolTipRole:
+                col = index.column()-1 if self._showindex else index.column()
+                res = str(self._queryrownumbers[index.row()]) if self._showindex and col == -1\
+                    else str(self._querytable[index.row()][self._querytable.colnames()[col]])
+        return res
 
     # @overrides
     def headerData(self, col, orientation: Qt.Orientation, role: Qt.ItemDataRole):
         """doc"""
+        res = None
+        col = col -1 if self._showindex else col
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            if not self._showindex:
-                return self._querytable.colnames()[col]
-            else:
-                return 'index' if col == 0 else self._querytable.colnames()[col-1]
-        return None
+            res = 'index' if self._showindex and col == -1\
+                else self._querytable.colnames()[col]
+
+        if role == Qt.ToolTipRole:
+            res = 'index' if self._showindex and col == -1\
+                else str(self._querytable.getcoldesc(self._querytable.colnames()[col]))
+        return res
 
     # @overrides
     def sort(self, col: int, order: Qt.SortOrder):

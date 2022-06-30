@@ -59,7 +59,7 @@
           </property>
           <widget class="QWidget" name="tab_1">
            <attribute name="title">
-            <string>Table View</string>
+            <string>Table Data</string>
            </attribute>
            <layout class="QVBoxLayout" name="tab1Layout">
             <item>
@@ -87,13 +87,47 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tab_2">
+          <widget class="MSInfoWidget" name="tab_2">
+           <attribute name="title">
+            <string>MS Info</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="tab_3">
            <attribute name="title">
             <string>Table Info</string>
            </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout2"/>
+           <layout class="QVBoxLayout" name="verticalLayout2">
+            <item>
+             <widget class="QLabel" name="descLabel">
+              <property name="text">
+               <string>desc</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPlainTextEdit" name="desctext">
+              <property name="textInteractionFlags">
+               <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="dminfoLabel">
+              <property name="text">
+               <string>dminfo</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPlainTextEdit" name="dminfotext">
+              <property name="textInteractionFlags">
+               <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
-          <widget class="QWidget" name="tab_3">
+          <widget class="QWidget" name="tab_4">
            <attribute name="title">
             <string>Gridding</string>
            </attribute>
