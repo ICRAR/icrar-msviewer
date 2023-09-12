@@ -1,6 +1,6 @@
 # icrar-msviewer
 
-A casacore data visualization and profiling applet for radio astronomy datasets.
+A casacore and TAQL data visualization and profiling applet for radio astronomy datasets.
 
 icrar-msviewer is built using PySide6 and licensed under the GNU General Public License Version 3.
 
